@@ -1,40 +1,46 @@
-import axios from "axios";
 import {Button, Input, Layout} from 'antd';
 import {useState} from "react";
+import {useAppDispatch, useAppSelector} from "./hook.ts";
 
-const { Header, Content } = Layout;
+import {fetchIssues} from "./store/issueSlice.ts";
+import KanbanBoard from "./KanbanBoard.tsx";
+
+const {Header, Content} = Layout;
 
 function App() {
-    const [repoUrl, setRepoUrl] = useState('');
+    const [inputRepoUrl, setInputRepoUrl] = useState('');
+
+
+    const dispatch = useAppDispatch();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setRepoUrl(e.target.value);
-    };
-
-    const fetchIssues = async (url: string) => {
-        try {
-            const response = await axios.get(url);
-            console.log(response.data);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-        }
+        setInputRepoUrl(e.target.value);
     }
 
     const handleLoadIssuesButton = () => {
-        const urlParts = repoUrl.split('/');
-        const owner = urlParts[3];
-        const repo = urlParts[4];
+        // Check if inputRepoUrl is valid
+        const isValidUrl = !!inputRepoUrl && inputRepoUrl.includes('github.com/');
 
-        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/issues`;
-        fetchIssues(apiUrl);
+        if (isValidUrl) {
+            const urlParts = inputRepoUrl.split('/');
+
+            const apiRepoUrl = `https://api.github.com/repos/${urlParts[3]}/${urlParts[4]}/issues?per_page=10`;
+            // dispatch(fetchIssues(apiRepoUrl));
+            dispatch(fetchIssues(apiRepoUrl))
+        } else {
+            // Handle invalid URL case (e.g., display an error message)
+            console.error('Please enter a valid GitHub repository URL.');
+        }
     }
 
     // STYLES
     const layoutStyle = {
         borderRadius: 8,
+        padding: '0 0.5rem',
         overflow: 'hidden',
         width: 'calc(100%)',
         maxWidth: 'calc(100%)',
+        background: '#fff'
     };
 
     const headerStyle: React.CSSProperties = {
@@ -61,31 +67,42 @@ function App() {
     //     backgroundColor: '#0958d9',
     // };
 
+
     return (
         <Layout style={layoutStyle}>
             <Header style={headerStyle}>
-                    <Input
-                        style={inputStyle}
-                        placeholder="Enter repo URL"
-                        size="large"
-                        onChange={handleChange}
-                    />
-                    <Button
-                        style={buttonStyle}
-                        type="primary"
-                        size="large"
-                        onClick={handleLoadIssuesButton}
-                    >
-                        Load Issues
-                    </Button>
+                <Input
+                    style={inputStyle}
+                    placeholder="Enter repo URL: (https://github.com/facebook/docusaurus)"
+                    size="large"
+                    onChange={handleChange}
+                />
+                <Button
+                    style={buttonStyle}
+                    type="primary"
+                    size="large"
+                    onClick={handleLoadIssuesButton}
+                >
+                    Load Issues
+                </Button>
             </Header>
             <Content>
-                owner repo stars
+                <div>
+                    {/*owner repo stars*/}
+                    {/*<Link href={`https://github.com/${owner}`} target="_blank" rel="noopener noreferrer">*/}
+                    {/*    {owner}*/}
+                    {/*</Link>*/}
+                    {/*&nbsp;&nbsp;&gt;&nbsp;&nbsp;*/}
+                    {/*<Link href={inputRepoUrl} target="_blank" rel="noopener noreferrer">*/}
+                    {/*    {repoName}*/}
+                    {/*</Link>*/}
+                </div>
+
+                <KanbanBoard
+                    // issues={currentIssues}
+                />
             </Content>
-
         </Layout>
-
-
     )
 }
 

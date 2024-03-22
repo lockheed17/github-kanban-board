@@ -1,0 +1,25 @@
+.board {
+    /*padding: 50px 0;*/
+    border: 1px solid black;
+}
+
+.board-container {
+    flex-grow: 1;
+    gap: 1rem;
+    border: 1px solid green;
+}
+
+.board_column {
+    border: 1px solid blue;
+    flex: 1 1 calc((100% / 3) - 2rem);
+}
+
+.kanban-board {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.kanban-column {
+    margin-bottom: 16px;
+    /* Добавьте другие стили по мере необходимости */
+}
