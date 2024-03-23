@@ -1,5 +1,4 @@
-// import {useState} from "react";
-import {Issue} from "../types";
+import {Issue} from "../../types.ts";
 import {useSortable} from "@dnd-kit/sortable";
 import {CSS} from "@dnd-kit/utilities";
 
@@ -8,9 +7,6 @@ interface Props {
 }
 
 const IssueCard = ({issue}: Props) => {
-
-    // const [mouseIsOver, setMouseIsOver] = useState(false);
-    // const [editMode, setEditMode] = useState(true);
 
     const {
         setNodeRef,
@@ -25,18 +21,12 @@ const IssueCard = ({issue}: Props) => {
             type: "Issue",
             issue,
         },
-        // disabled: editMode, // отключает перемещение
     });
 
     const style = {
         transition,
         transform: CSS.Transform.toString(transform),
     }
-
-    // const toggleEditMode = () => {
-    //     setEditMode((prev) => !prev);
-    //     setMouseIsOver(false);
-    // };
 
     if (isDragging) {
         return (
@@ -45,7 +35,7 @@ const IssueCard = ({issue}: Props) => {
                 style={style}
                 className="
                     opacity-30
-                    bg-mainBackgroundColor p-2.5 h-[100px] min-h-[100px] items-center flex text-left rounded-xl border-2 border-rose-500  cursor-grab relative
+                     p-2.5 h-[100px] min-h-[100px] items-center flex text-left rounded-xl border-2 border-gray-500
                 "
             />
         );
@@ -57,15 +47,16 @@ const IssueCard = ({issue}: Props) => {
             style={style}
             {...attributes}
             {...listeners}
-            className="bg-mainBackgroundColor p-2.5 h-[100px] min-h-[100px] items-center flex text-left rounded-xl hover:ring-2 hover:ring-inset hover:ring-rose-500 cursor-grab relative issue"
+            className="gap-2 bg-[#fff] items-baseline shadow p-4 h-[120px] min-h-[120px] flex flex-col text-left rounded-xl hover:ring-2 hover:ring-inset hover:ring-gray-400 cursor-grab relative issue"
         >
-            <p className="my-auto h-[90%] w-full overflow-y-auto overflow-x-hidden whitespace-pre-wrap">
+            <p className="min-h-6 w-full font-semibold overflow-hidden text-ellipsis" title={issue.title}>
                 {issue.title}
             </p>
-
             <p>
-                {issue.number}
-                {issue.comments}
+                #{issue.number} {issue.created_at}
+            </p>
+            <p>
+                {issue.user} | Comments: {issue.comments}
             </p>
         </div>
     );
