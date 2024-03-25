@@ -3,7 +3,7 @@ import axios from "axios";
 import {AppDispatch, RootState} from "./index.ts";
 import {Issue, IssueFromApi, IssueObj} from "../../types.ts";
 import {computeColumnId} from "../utils/computeColumnId.ts";
-import {convertUrlToKey} from "../utils/convertUrlToKey.ts";
+import {convertApiUrlToKey} from "../utils/convertApiUrlToKey.ts";
 import {formatShortDate} from "../utils/formatShortDate.ts";
 
 type IssuesState = {
@@ -30,7 +30,7 @@ export const fetchIssues = createAsyncThunk<
         const state = getState();
         const {storedIssues} = state.issues;
 
-        const repoName = convertUrlToKey(url);
+        const repoName = convertApiUrlToKey(url);
 
         if (storedIssues[repoName]) {
             return storedIssues[repoName];
@@ -41,10 +41,6 @@ export const fetchIssues = createAsyncThunk<
                         Accept: 'application/vnd.github+json'
                     }
                 });
-
-                if (response.status !== 200) {
-                    return rejectWithValue('Server Error!');
-                } // мб лишнее
 
                 const repoUrl = response.data[0].repository_url;
 
@@ -63,7 +59,18 @@ export const fetchIssues = createAsyncThunk<
 
                     const columnId = computeColumnId(issue);
 
-                    return {id, repository_url, title, number, comments, created_at: formatShortDate(created_at), user: type, state, assignee, columnId};
+                    return {
+                        id,
+                        repository_url,
+                        title,
+                        number,
+                        comments,
+                        created_at: formatShortDate(created_at),
+                        user: type,
+                        state,
+                        assignee,
+                        columnId
+                    };
                 });
 
                 return {repoUrl, mappedIssues};
@@ -93,13 +100,9 @@ const issueSlice = createSlice({
             const issueId = action.payload.issueId;
 
             state.currentIssues.mappedIssues[issueId].columnId = newColumnId;
-
-            // state.storedIssues[state.currentRepoName] = state.currentIssues;
         },
         reorderIssues: (state, action: PayloadAction<Issue[]>) => {
             state.currentIssues.mappedIssues = action.payload;
-
-            // state.storedIssues[state.currentRepoName] = state.currentIssues;
         }
     },
     extraReducers: (builder) => {
@@ -112,9 +115,7 @@ const issueSlice = createSlice({
                 state.loading = false;
 
                 const url = action.meta.arg;
-                const repoName = convertUrlToKey(url);
-
-                // state.currentRepoName = repoName;
+                const repoName = convertApiUrlToKey(url);
 
                 state.storedIssues = {...state.storedIssues, [repoName]: action.payload};
                 state.currentIssues = action.payload;

@@ -1,5 +1,5 @@
 import {
-    DndContext, DragEndEvent,
+    DndContext,
     DragOverEvent,
     DragOverlay,
     DragStartEvent,
@@ -9,7 +9,7 @@ import {
 } from '@dnd-kit/core';
 import {arrayMove, SortableContext} from "@dnd-kit/sortable";
 
-import {useMemo, useState} from "react";
+import {useState} from "react";
 import {createPortal} from "react-dom";
 
 import {useAppDispatch, useAppSelector} from "../hook.ts";
@@ -37,8 +37,7 @@ const cols: Column[] = [
 
 const KanbanBoard = () => {
 
-    const [columns, setColumns] = useState<Column[]>(cols);
-    const columnsId = useMemo(() => columns.map((col) => col.id), [columns]);
+    const columnsId = cols.map((col) => col.id);
 
     const [activeColumn, setActiveColumn] = useState<Column | null>(null);
     const [activeIssue, setActiveIssue] = useState<Issue | null>(null);
@@ -66,29 +65,6 @@ const KanbanBoard = () => {
         }
     }
 
-    function onDragEnd(event: DragEndEvent) {
-        setActiveColumn(null);
-        setActiveIssue(null);
-
-        const {active, over} = event;
-        if (!over) return;
-
-        const activeId = active.id;
-        const overId = over.id;
-
-        if (activeId === overId) return;
-
-        const isActiveAColumn = active.data.current?.type === "Column";
-        if (!isActiveAColumn) return;
-
-        setColumns((columns) => {
-            const activeColumnIndex = columns.findIndex((col) => col.id === activeId);
-            const overColumnIndex = columns.findIndex((col) => col.id === overId);
-
-            return arrayMove(columns, activeColumnIndex, overColumnIndex);
-        });
-    }
-
     function onDragOver(event: DragOverEvent) {
         const {active, over} = event;
         if (!over) return;
@@ -96,6 +72,7 @@ const KanbanBoard = () => {
         const activeId = active.id;
         const overId = over.id;
 
+        console.log(activeId, overId)
         if (activeId === overId) return;
 
         const isActiveAIssue = active.data.current?.type === "Issue";
@@ -104,9 +81,8 @@ const KanbanBoard = () => {
         if (!isActiveAIssue) return;
 
         if (isActiveAIssue && isOverAIssue) {
-            console.log(overId)
-            const activeIndex = issues.findIndex((t) => t.id === activeId);
-            const overIndex = issues.findIndex((t) => t.id === overId);
+            const activeIndex = issues.findIndex((issue) => issue.id === +activeId);
+            const overIndex = issues.findIndex((issue) => issue.id === +overId);
 
             if (issues[activeIndex].columnId != issues[overIndex].columnId) {
                 dispatch(changeColumn({issueId: activeIndex, columnId: issues[overIndex].columnId as string}))
@@ -119,7 +95,7 @@ const KanbanBoard = () => {
         const isOverAColumn = over.data.current?.type === "Column";
 
         if (isActiveAIssue && isOverAColumn) {
-            const activeIndex = issues.findIndex((t) => t.id === activeId);
+            const activeIndex = issues.findIndex((issue) => issue.id === +activeId);
             dispatch(changeColumn({issueId: activeIndex, columnId: overId as string}))
         }
     }
@@ -128,12 +104,11 @@ const KanbanBoard = () => {
         <DndContext
             sensors={sensors}
             onDragStart={onDragStart}
-            onDragEnd={onDragEnd}
             onDragOver={onDragOver}
         >
             <div className="flex gap-4 min-w-full min-h-screen">
                 <SortableContext items={columnsId}>
-                    {columns.map((col) => (
+                    {cols.map((col) => (
                         <ColumnContainer
                             key={col.id}
                             column={col}
@@ -162,7 +137,6 @@ const KanbanBoard = () => {
                 document.body
             )}
         </DndContext>
-
     )
 }
 

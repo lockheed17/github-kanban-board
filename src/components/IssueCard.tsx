@@ -16,7 +16,7 @@ const IssueCard = ({issue}: Props) => {
         transition,
         isDragging,
     } = useSortable({
-        id: issue.id,
+        id: issue.id.toString(),
         data: {
             type: "Issue",
             issue,
@@ -35,7 +35,7 @@ const IssueCard = ({issue}: Props) => {
                 style={style}
                 className="
                     opacity-30
-                     p-2.5 h-[100px] min-h-[100px] items-center flex text-left rounded-xl border-2 border-gray-500
+                     p-2.5 h-[120px] min-h-[120px] items-center flex text-left rounded-xl border-2 border-gray-500
                 "
             />
         );
