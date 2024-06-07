@@ -72,7 +72,6 @@ const KanbanBoard = () => {
         const activeId = active.id;
         const overId = over.id;
 
-        console.log(activeId, overId)
         if (activeId === overId) return;
 
         const isActiveAIssue = active.data.current?.type === "Issue";
